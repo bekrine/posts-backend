@@ -15,7 +15,7 @@ const handelLogout=(req,res)=>{
     const otherUsers=users.filter(user=>user.refreshToken !== findUser.refreshToken)
     const currentUser={...findUser,refreshToken:''}
     const db=[...otherUsers,currentUser]
-    res.clearCookie('jwt',{httpOnly:true,maxAge:24*60*60*1000})
+    res.clearCookie('jwt',{httpOnly:true,sameSite:'None',secure:true})
     res.sendStaus(204)
 }
 
