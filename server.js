@@ -1,26 +1,24 @@
 const express=require('express')
 const cors =require('cors')
+const cookieParser=require('cookie-parser')
+const corsOptions=require('./config/corsOptions')
+require('dotenv').config()
+const {API_PORT}=process.env
 
 const app=express()
-const PORT=3500
+const PORT=process.env.PORT ||API_PORT
 
-const whiteListe=['http//localhost:3000']
-const corsOption={
-    origin:(origin,callback)=>{
-        if(whiteListe.indexOf(origin) !== -1){
-            callback(null,true)
-        }else{
-            callback(new Error('Not Allowed by CORS'))
-        }
-    },
-    optionsSuccessStatus:200
-}
-app.use(cors(corsOption))
+
+app.use(express.urlencoded({extended:false}))
+app.use(cookieParser())
 app.use(express.json())
+app.use(cors(corsOptions))
 
 
-app.post('/register',(req,res)=>{
-    console.log(req)
-})
+app.use('/auth',require('./routes/authentication'))
+app.use('/register',require('./routes/register'))
+app.use('/postes',require('./routes/api/postes'))
+app.use('/refresh',require('./routes/refresh'))
+app.use('/logout',require('./routes/logout'))
 
 app.listen(PORT,()=>{console.log(`listin to port ${PORT}`)})
