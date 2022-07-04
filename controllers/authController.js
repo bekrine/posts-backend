@@ -1,15 +1,17 @@
 const bcrypt=require("bcrypt")
 const jwt = require('jsonwebtoken')
-require('dotenv').config()
+const User=require('../model/User')
+
 
 const authHandler=async(req,res)=>{
     const {email,password}=req.body
     if(!email || !password){
         return res.status(400).json({'message':'email & password required'})
     }
-    const findUser=db.users.find(user=>user.email === email )
+    const findUser=await User.findOne({email}).exec()
+    console.log(findUser)
     if(!findUser)return res.sendStatus(401)
-    const match = await bcrypt.compare(password,findUser.passw)
+    const match = await bcrypt.compare(password,findUser.password)
     if(match){
 
         //create  token
@@ -29,11 +31,10 @@ const authHandler=async(req,res)=>{
             }
             )
         //add token to db
-        const otherUser=users.filter(user=>user.email !== findUser.email)  
-        const userWithToken={...findUser,refreshToken}
-        const db=[...otherUser,userWithToken]  
+            await User.findOneAndUpdate(findUser.email,{'refreshToken':refreshToken}) 
         res.cookie('jwt',refreshToken,{httpOnly:true,sameSite:'none',secure:true,maxAge:24*60*60*1000})    
         res.json({accesToken})
+
     }else{
         res.sendStatus(401)
     }

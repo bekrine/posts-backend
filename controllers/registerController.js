@@ -1,3 +1,4 @@
+const User=require("../model/User")
 const bcrypt=require('bcrypt')
 const  uuid=require('uuid')
 
@@ -8,13 +9,17 @@ const handelNewUser=async(req,res)=>{
     if(!firstName || !lastName || !email || !password){
         return  res.status(400).json({'message':'all filde are required'})
     }
-    // const duplicate=db.users.find(user=>user.email === email)
-    const duplicate=false
+     const duplicate= await User.findOne({email}).exec()
+
     if(duplicate)return res.sendStatus(409)
     try {
         const hashedPassword=await bcrypt.hash(password,10)
-        const newUser={id:uuid.v4(),firstName,lastName,email,passw:hashedPassword}
-        console.log(newUser)
+        const result= await User.create({
+            'firstName':firstName
+            ,'lastName':lastName,
+            'email':email,
+            'password':hashedPassword
+        })
         res.status(201).json({'succes':'user created with succes'})
     } catch (err) {
         res.status(500).json({"message":err.message})
