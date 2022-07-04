@@ -1,14 +1,16 @@
+require('dotenv').config()
 const express=require('express')
 const cors =require('cors')
 const cookieParser=require('cookie-parser')
 const corsOptions=require('./config/corsOptions')
-require('dotenv').config()
+const mongoose=require('mongoose')
+const dbconnect=require('./config/dbConn')
 const {API_PORT}=process.env
 
 const app=express()
 const PORT=process.env.PORT ||API_PORT
 
-
+dbconnect()
 app.use(express.urlencoded({extended:false}))
 app.use(cookieParser())
 app.use(express.json())
@@ -21,4 +23,7 @@ app.use('/postes',require('./routes/api/postes'))
 app.use('/refresh',require('./routes/refresh'))
 app.use('/logout',require('./routes/logout'))
 
-app.listen(PORT,()=>{console.log(`listin to port ${PORT}`)})
+mongoose.connection.once('open',()=>{
+    console.log('dbconect')
+    app.listen(PORT,()=>{console.log(`listin to port ${PORT}`)})
+})
