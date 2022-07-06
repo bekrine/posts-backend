@@ -1,27 +1,31 @@
 const uuid=require('uuid')
+const User=require('../model/User')
 
-const users=[]
-const postes=[{
-    id:'',
-    titel:'',
-    content:''
-}]
-const getAllPosts=(req,res)=>{
-    res.json({'data':postes})
+const getAllPosts=async(req,res)=>{
+        const users=await User.find()
+        if(!users)return res.status(204).json({'message':'non users found'})
+        const postes = users.map((user)=>{return [...user.postes]})
+        res.json(postes)
 }
 
-const addNewposte=(req,res)=>{
-    const {id,poste}=req.body
-    const findUser=users.find(user=>user.id===id)
+const addNewposte=async(req,res)=>{
+    console.log(req.email)
+    const users=await User.find()
+    const email=req.email
+    const {titel,content}=req.body
+    const findUser= await User.findOne({email}).exec()
     if(!findUser)return res.sendStatus(401)
-    poste={
-        id:uuid.v4(),
-        titel,
+   findUser.postes.push({
+    'title':titel,
         content
-    }
-    findUser.postes.push(poste)
-    res.json({'data':postes})
+    })
+   await findUser.save()
+   const postes = users.map((user)=>{return [...user.postes]})
+
+    // findUser.postes.push(poste)
+    res.json(postes)
 }
+
 
 
 const updatPost=(req,res)=>{

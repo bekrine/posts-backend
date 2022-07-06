@@ -9,7 +9,6 @@ const authHandler=async(req,res)=>{
         return res.status(400).json({'message':'email & password required'})
     }
     const findUser=await User.findOne({email}).exec()
-    console.log(findUser)
     if(!findUser)return res.sendStatus(401)
     const match = await bcrypt.compare(password,findUser.password)
     if(match){
@@ -31,7 +30,9 @@ const authHandler=async(req,res)=>{
             }
             )
         //add token to db
-            await User.findOneAndUpdate(findUser.email,{'refreshToken':refreshToken}) 
+            // await User.findOneAndUpdate(findUser.email,{'refreshToken':refreshToken}) 
+            findUser.refreshToken=refreshToken
+            await findUser.save()
         res.cookie('jwt',refreshToken,{httpOnly:true,sameSite:'none',secure:true,maxAge:24*60*60*1000})    
         res.json({accesToken})
 

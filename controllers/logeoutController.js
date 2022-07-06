@@ -12,7 +12,9 @@ const handelLogout=async(req,res)=>{
         return res.sendStatus(403)
     }
    //delete from db
-   await User.findOneAndUpdate(findUser.email,{'refreshToken':''})
+   findUser.refreshToken=''
+   const result=await findUser.save()
+//    await User.findOneAndUpdate(findUser.email,{'refreshToken':''})
     res.clearCookie('jwt',{httpOnly:true,sameSite:'None',secure:true})
     res.sendStatus(204)
 }
